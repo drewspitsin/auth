@@ -8,7 +8,7 @@ import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/drewspitsin/auth/pkg/user_api_v1;user_api_v1";
 
-service User_API_V1 {
+service UserV1 {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Get(GetRequest) returns (GetResponse);
     rpc Update(UpdateRequest) returns (google.protobuf.Empty);
@@ -16,8 +16,9 @@ service User_API_V1 {
 }
 
 enum Role {
-    ADMIN = 0;
-    USER = 1;
+    UNKNOWN = 0;
+    ADMIN = 1;
+    USER = 2;
 }
 
 message CreateRequest {

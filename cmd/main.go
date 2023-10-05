@@ -12,28 +12,32 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/drewspitsin/auth/internal/config"
+	"github.com/drewspitsin/auth/internal/grpc_api"
 	desc "github.com/drewspitsin/auth/pkg/user_api_v1"
 )
 
-const grpcPort = 50051
-
-type server struct {
-	desc.UnimplementedUser_API_V1Server
-}
-
 func main() {
 
-	great_quit := make(chan os.Signal, 1)
-	signal.Notify(great_quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
+	greatQuit := make(chan os.Signal, 1)
+	signal.Notify(greatQuit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterUser_API_V1Server(s, &server{})
+
+	server := grpc_api.NewUserV1Server()
+
+	desc.RegisterUserV1Server(s, server)
 
 	log.Printf("server listening at %v", lis.Addr())
 
@@ -43,7 +47,7 @@ func main() {
 		}
 	}()
 
-	<-great_quit
+	<-greatQuit
 	s.GracefulStop()
 	fmt.Println(color.YellowString("Auth_api server closed..."))
 }
