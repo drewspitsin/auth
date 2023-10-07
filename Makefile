@@ -25,3 +25,15 @@ generate-user-api:
 	--go-grpc_out=pkg/user_api_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/user_api/user_api_v1.proto
+
+
+build:
+	GOOS=linux GOARCH=amd64 go build -o service_linux cmd/main.go
+
+copy-to-server:
+	scp service_linux root@89.104.117.12:
+
+docker-build-and-push:
+	docker buildx build --no-cache --platform linux/amd64 -t cr.selcloud.ru/olezhek28/test-server:v0.0.1 .
+	docker login -u token -p CRgAAAAA6ELvdoGnA7EL4qSbkICKeDkVldDC2OOU cr.selcloud.ru/olezhek28
+	docker push cr.selcloud.ru/olezhek28/test-server:v0.0.1

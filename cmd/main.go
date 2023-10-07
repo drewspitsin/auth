@@ -18,7 +18,6 @@ import (
 )
 
 func main() {
-
 	cfg, err := config.Load()
 	if err != nil {
 		fmt.Println(err.Error())
