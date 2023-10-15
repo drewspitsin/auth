@@ -7,24 +7,28 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/brianvoe/gofakeit"
 	desc "github.com/drewspitsin/auth/pkg/user_api_v1"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// id serial primary key,
-// UserName text not null,
-// Email text not null,
-// Pswd text not null,
-// created_at timestamp not null default now(),
-// updated_at timestamp
+const (
+	id          = "id"
+	table       = "user_table"
+	username    = "username"
+	email       = "email"
+	password    = "password"
+	role        = "role"
+	createdAtPg = "created_at"
+	updatedAtPg = "updated_at"
+)
 
 func (s *UserV1Server) CreatePg(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
 
-	builderInsert := sq.Insert("user_table").
+	builderInsert := sq.Insert(table).
 		PlaceholderFormat(sq.Dollar).
-		Columns("user_name", "email", "pswd").
-		Values(gofakeit.City(), gofakeit.Address().Zip, gofakeit.City()).
+		Columns(username, email, password).
+		Values(req.Name, req.Email, req.Password).
 		Suffix("RETURNING id")
 
 	query, args, err := builderInsert.ToSql()
@@ -47,10 +51,10 @@ func (s *UserV1Server) CreatePg(ctx context.Context, req *desc.CreateRequest) (*
 
 func (s *UserV1Server) GetPg(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	// Делаем запрос на получение измененной записи из таблицы user_table
-	builderSelectOne := sq.Select("id", "user_name", "email", "role", "created_at", "updated_at").
-		From("user_table").
+	builderSelectOne := sq.Select(id, username, email, role, createdAtPg, updatedAtPg).
+		From(table).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": req.GetId()}).
+		Where(sq.Eq{id: req.GetId()}).
 		Limit(1)
 
 	query, args, err := builderSelectOne.ToSql()
@@ -86,10 +90,53 @@ func (s *UserV1Server) GetPg(ctx context.Context, req *desc.GetRequest) (*desc.G
 	}, nil
 }
 
-func (s *UserV1Server) UpdatePg(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
+func (s *UserV1Server) UpdatePg(ctx context.Context, req *desc.UpdateRequest) (*empty.Empty, error) {
+
+	var updatedAt sql.NullTime
+	var updatedAtTime *timestamppb.Timestamp
+	if updatedAt.Valid {
+		updatedAtTime = timestamppb.New(updatedAt.Time)
+	}
+
+	builderUpdate := sq.Update(table).
+		PlaceholderFormat(sq.Dollar).
+		Set(username, req.Name).
+		Set(email, req.Email).
+		Set(role, req.Role).
+		Set(updatedAtPg, updatedAtTime).
+		Where(sq.Eq{id: req.Id})
+
+	query, args, err := builderUpdate.ToSql()
+	if err != nil {
+		log.Fatalf("failed to build query: %v", err)
+		return nil, err
+	}
+
+	res, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		log.Fatalf("failed to update note: %v", err)
+		return nil, err
+	}
+
+	log.Printf("updated %d rows", res.RowsAffected())
 	return nil, nil
 }
 
-func (s *UserV1Server) DeletePg(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
+func (s *UserV1Server) DeletePg(ctx context.Context, req *desc.GetRequest) (*empty.Empty, error) {
+	builderInsert := sq.Delete(table).
+		Where(sq.Eq{id: req.GetId()}).
+		PlaceholderFormat(sq.Dollar)
+	query, args, err := builderInsert.ToSql()
+	if err != nil {
+		log.Fatalf("failed to build query: %v", err)
+		return nil, err
+	}
+
+	res, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		log.Fatalf("failed to update note: %v tag: %v", err, res)
+		return nil, err
+	}
+
 	return nil, nil
 }

@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ week2 ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ week2 ]
 
 env:
   REGISTRY: "cr.selcloud.ru/ester-registry"
