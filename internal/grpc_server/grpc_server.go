@@ -1,20 +1,25 @@
-package grpc_api
+package grpc_server
 
 import (
 	"context"
 
 	desc "github.com/drewspitsin/auth/pkg/user_api_v1"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // UserV1Server
 type UserV1Server struct {
 	desc.UnimplementedUserV1Server
+	pool *pgxpool.Pool
 }
 
 // NewUserV1Server returns a new UserV1Server instance
-func NewUserV1Server() *UserV1Server {
-	return &UserV1Server{}
+func NewUserV1Server(p *pgxpool.Pool) *UserV1Server {
+	return &UserV1Server{
+		UnimplementedUserV1Server: desc.UnimplementedUserV1Server{},
+		pool:                      p,
+	}
 }
 
 // Create is a method that implements the Create method of the UserV1Server
