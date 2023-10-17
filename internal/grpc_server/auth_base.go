@@ -9,6 +9,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	desc "github.com/drewspitsin/auth/pkg/user_api_v1"
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,16 +37,16 @@ func (s *UserV1Server) CreatePg(ctx context.Context, req *desc.CreateRequest) (*
 		log.Fatalf("failed to build query: %v", err)
 	}
 
-	var user_tableID int64
-	err = s.pool.QueryRow(ctx, query, args...).Scan(&user_tableID)
+	var userTableID int64
+	err = s.pool.QueryRow(ctx, query, args...).Scan(&userTableID)
 	if err != nil {
 		log.Fatalf("failed to insert user_table: %v", err)
 	}
 
-	log.Printf("inserted user_table with id: %d", user_tableID)
+	log.Printf("inserted user_table with id: %d", userTableID)
 
 	return &desc.CreateResponse{
-		Id: user_tableID,
+		Id: userTableID,
 	}, nil
 }
 
@@ -119,7 +120,7 @@ func (s *UserV1Server) UpdatePg(ctx context.Context, req *desc.UpdateRequest) (*
 	}
 
 	log.Printf("updated %d rows", res.RowsAffected())
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *UserV1Server) DeletePg(ctx context.Context, req *desc.GetRequest) (*empty.Empty, error) {
@@ -138,5 +139,5 @@ func (s *UserV1Server) DeletePg(ctx context.Context, req *desc.GetRequest) (*emp
 		return nil, err
 	}
 
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }
