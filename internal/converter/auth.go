@@ -35,7 +35,7 @@ func ToUserFromDescCreate(user *desc.CreateRequest) *model.User {
 		Name:      user.Name,
 		Email:     user.Email,
 		Password:  user.Password,
-		Role:      int8(user.Role),
+		Role:      int(user.Role),
 		CreatedAt: time.Now(),
 		UpdatedAt: sql.NullTime{},
 	}
@@ -48,7 +48,7 @@ func ToUserFromDescUpdate(user *desc.UpdateRequest) *model.User {
 		Name:      user.Name.Value,
 		Email:     user.Email.Value,
 		Password:  "",
-		Role:      int8(user.Role),
+		Role:      int(user.Role),
 		CreatedAt: time.Now(),
 		UpdatedAt: sql.NullTime{},
 	}

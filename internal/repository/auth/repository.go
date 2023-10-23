@@ -2,8 +2,9 @@ package auth
 
 import (
 	"context"
-	"database/sql"
 	"log"
+	"strconv"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/drewspitsin/auth/internal/client/db"
@@ -11,12 +12,12 @@ import (
 	"github.com/drewspitsin/auth/internal/repository"
 	"github.com/drewspitsin/auth/internal/repository/auth/converter"
 	modelRepo "github.com/drewspitsin/auth/internal/repository/auth/model"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/jackc/pgtype"
 )
 
 const (
 	id          = "id"
-	table       = "user_table"
+	table       = "user_api"
 	username    = "username"
 	email       = "email"
 	password    = "password"
@@ -34,11 +35,10 @@ func NewRepository(dbClient db.Client) repository.AuthRepository {
 }
 
 func (s *repo) Create(ctx context.Context, info *model.User) (int64, error) {
-
 	builderInsert := sq.Insert(table).
 		PlaceholderFormat(sq.Dollar).
-		Columns(username, email, password).
-		Values(info.Name, info.Email, info.Password).
+		Columns(username, email, password, role).
+		Values(info.Name, info.Email, info.Password, strconv.Itoa(info.Role)).
 		Suffix("RETURNING id")
 
 	query, args, err := builderInsert.ToSql()
@@ -79,7 +79,8 @@ func (s *repo) Get(ctx context.Context, userTableID int64) (*model.User, error) 
 	}
 
 	var user modelRepo.User
-	err = s.db.DB().QueryRowContext(ctx, q, args...).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt, &user.UpdatedAt)
+	var n1 pgtype.Int8
+	err = s.db.DB().QueryRowContext(ctx, q, args...).Scan(&user.ID, &user.Name, &user.Email, &n1, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -89,18 +90,12 @@ func (s *repo) Get(ctx context.Context, userTableID int64) (*model.User, error) 
 
 func (s *repo) Update(ctx context.Context, info *model.User) error {
 
-	var updatedAt sql.NullTime
-	var updatedAtTime *timestamppb.Timestamp
-	if updatedAt.Valid {
-		updatedAtTime = timestamppb.New(updatedAt.Time)
-	}
-
 	builderUpdate := sq.Update(table).
 		PlaceholderFormat(sq.Dollar).
 		Set(username, info.Name).
 		Set(email, info.Email).
-		Set(role, info.Role).
-		Set(updatedAtPg, updatedAtTime).
+		Set(role, strconv.Itoa(info.Role)).
+		Set(updatedAtPg, time.Now()).
 		Where(sq.Eq{id: info.ID})
 
 	query, args, err := builderUpdate.ToSql()

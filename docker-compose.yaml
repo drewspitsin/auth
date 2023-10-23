@@ -1,8 +1,7 @@
 version: '3'
 
 volumes:
-  postgres_volume_local:
-  postgres_volume_prod:
+  postgres_volume:
 
 services:
   pg:
@@ -12,7 +11,7 @@ services:
     ports:
       - "54321:5432"
     volumes:
-      - postgres_volume_local:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
 
   migrator:
     build:
