@@ -1,9 +1,6 @@
 package converter
 
 import (
-	"database/sql"
-	"time"
-
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/drewspitsin/auth/internal/model"
@@ -23,46 +20,28 @@ func ToUserFromService(user *model.User) *desc.User {
 		Email:     user.Email,
 		Password:  user.Password,
 		Role:      desc.Role(user.Role),
-		CreatedAt: &timestamppb.Timestamp{},
 		UpdatedAt: updatedAt,
 	}
 }
 
-func ToUserFromDescCreate(user *desc.CreateRequest) *model.User {
-
-	return &model.User{
-		ID:        0,
-		Name:      user.Name,
-		Email:     user.Email,
-		Password:  user.Password,
-		Role:      int(user.Role),
-		CreatedAt: time.Now(),
-		UpdatedAt: sql.NullTime{},
+func ToUserFromDescCreate(user *desc.CreateRequest) *model.UserCreate {
+	return &model.UserCreate{
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: user.Password,
+		Role:     int(user.Role),
 	}
 }
 
-func ToUserFromDescUpdate(user *desc.UpdateRequest) *model.User {
-
-	return &model.User{
-		ID:        user.Id,
-		Name:      user.Name.Value,
-		Email:     user.Email.Value,
-		Password:  "",
-		Role:      int(user.Role),
-		CreatedAt: time.Now(),
-		UpdatedAt: sql.NullTime{},
+func ToUserFromDescUpdate(user *desc.UpdateRequest) *model.UserUpdate {
+	return &model.UserUpdate{
+		ID:    user.Id,
+		Name:  user.Name.Value,
+		Email: user.Email.Value,
+		Role:  int(user.Role),
 	}
 }
 
-func ToUserFromDescDelete(user *desc.DeleteRequest) *model.User {
-
-	return &model.User{
-		ID:        user.Id,
-		Name:      "",
-		Email:     "",
-		Password:  "",
-		Role:      0,
-		CreatedAt: time.Time{},
-		UpdatedAt: sql.NullTime{},
-	}
+func ToUserFromDescDelete(user *desc.DeleteRequest) int64 {
+	return user.Id
 }

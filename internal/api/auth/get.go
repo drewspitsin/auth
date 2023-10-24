@@ -18,9 +18,9 @@ func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.G
 
 	return &desc.GetResponse{
 		Id:        authObj.ID,
-		Name:      "",
-		Email:     "",
-		Role:      0,
+		Name:      authObj.Name,
+		Email:     authObj.Email,
+		Role:      desc.Role(authObj.Role),
 		CreatedAt: &timestamppb.Timestamp{},
 		UpdatedAt: &timestamppb.Timestamp{},
 	}, nil

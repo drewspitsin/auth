@@ -2,12 +2,10 @@ package auth
 
 import (
 	"context"
-
-	"github.com/drewspitsin/auth/internal/model"
 )
 
-func (s *serv) Delete(ctx context.Context, info *model.User) error {
-	err := s.authRepository.Delete(ctx, info)
+func (s *serv) Delete(ctx context.Context, id int64) error {
+	err := s.authRepository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

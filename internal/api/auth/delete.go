@@ -12,7 +12,7 @@ import (
 func (i *Implementation) Delete(ctx context.Context, req *desc.DeleteRequest) (*empty.Empty, error) {
 	err := i.authService.Delete(ctx, converter.ToUserFromDescDelete(req))
 	if err != nil {
-		return &emptypb.Empty{}, err
+		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil

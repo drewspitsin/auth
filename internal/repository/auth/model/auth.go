@@ -5,6 +5,20 @@ import (
 	"time"
 )
 
+type UserCreate struct {
+	Name     string `db:"username"`
+	Email    string `db:"email"`
+	Password string `db:"password"`
+	Role     int    `db:"role"`
+}
+
+type UserUpdate struct {
+	ID    int64  `db:"id"`
+	Name  string `db:"username"`
+	Email string `db:"email"`
+	Role  int    `db:"role"`
+}
+
 type User struct {
 	ID        int64        `db:"id"`
 	Name      string       `db:"username"`

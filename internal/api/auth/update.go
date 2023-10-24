@@ -12,7 +12,8 @@ import (
 func (i *Implementation) Update(ctx context.Context, req *desc.UpdateRequest) (*empty.Empty, error) {
 	err := i.authService.Update(ctx, converter.ToUserFromDescUpdate(req))
 	if err != nil {
-		return &emptypb.Empty{}, err
+		return nil, err
 	}
+
 	return &emptypb.Empty{}, nil
 }
