@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/drewspitsin/auth/internal/converter"
 	desc "github.com/drewspitsin/auth/pkg/user_api_v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
@@ -14,14 +14,9 @@ func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.G
 		return nil, err
 	}
 
-	log.Printf("id: %d", authObj.ID)
+	log.Printf("id: %d", authObj.UC.UU.ID)
 
 	return &desc.GetResponse{
-		Id:        authObj.ID,
-		Name:      authObj.Name,
-		Email:     authObj.Email,
-		Role:      desc.Role(authObj.Role),
-		CreatedAt: &timestamppb.Timestamp{},
-		UpdatedAt: &timestamppb.Timestamp{},
+		Info: converter.ToUserFromService(authObj),
 	}, nil
 }

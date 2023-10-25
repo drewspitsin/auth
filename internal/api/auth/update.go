@@ -10,7 +10,7 @@ import (
 )
 
 func (i *Implementation) Update(ctx context.Context, req *desc.UpdateRequest) (*empty.Empty, error) {
-	err := i.authService.Update(ctx, converter.ToUserFromDescUpdate(req))
+	err := i.authService.Update(ctx, converter.ToUserFromDescUpdate(req.GetInfo()))
 	if err != nil {
 		return nil, err
 	}

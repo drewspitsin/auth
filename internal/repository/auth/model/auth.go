@@ -5,26 +5,20 @@ import (
 	"time"
 )
 
-type UserCreate struct {
-	Name     string `db:"username"`
-	Email    string `db:"email"`
-	Password string `db:"password"`
-	Role     int    `db:"role"`
-}
-
-type UserUpdate struct {
+type UserU struct {
 	ID    int64  `db:"id"`
 	Name  string `db:"username"`
 	Email string `db:"email"`
 	Role  int    `db:"role"`
 }
 
+type UserC struct {
+	UU       UserU  `db:""`
+	Password string `db:"password"`
+}
+
 type User struct {
-	ID        int64        `db:"id"`
-	Name      string       `db:"username"`
-	Email     string       `db:"email"`
-	Password  string       `db:"password"`
-	Role      int          `db:"role"`
+	UC        UserC        `db:""`
 	CreatedAt time.Time    `db:"created_at"`
 	UpdatedAt sql.NullTime `db:"updated_at"`
 }
