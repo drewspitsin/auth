@@ -16,15 +16,17 @@ service UserV1 {
 }
 
 message User {
-        UserC userc = 1;
+        UserCreate user_create = 1;
         google.protobuf.Timestamp created_at = 2;
         google.protobuf.Timestamp updated_at = 3;
-    }
-message UserC {
-        UserU useru = 1;
+}
+
+message UserCreate {
+        UserUpdate user_update = 1;
         string password = 2;
-    }
-message UserU {
+}
+
+message UserUpdate {
         int64 id = 1;
         string name = 2;
         string email = 3;
@@ -38,7 +40,7 @@ enum Role {
 }
 
 message CreateRequest {
-    UserC info = 1;
+    UserCreate info = 1;
 }
 
 message CreateResponse {
@@ -54,7 +56,7 @@ message GetResponse {
 }
 
 message UpdateRequest {
-    UserU info = 1;
+    UserUpdate info = 1;
 }
 
 message DeleteRequest {

@@ -6,7 +6,7 @@ import (
 	"github.com/drewspitsin/auth/internal/model"
 )
 
-func (s *serv) Create(ctx context.Context, info *model.UserC) (int64, error) {
+func (s *serv) Create(ctx context.Context, info *model.UserCreate) (int64, error) {
 	var id int64
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var errTx error

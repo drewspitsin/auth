@@ -7,21 +7,21 @@ import (
 
 func ToUserFromRepo(user modelRepo.User) *model.User {
 	return &model.User{
-		UC:        ToUserCFromRepo(user.UC),
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		UserCreate: ToUserCFromRepo(user.UserCreate),
+		CreatedAt:  user.CreatedAt,
+		UpdatedAt:  user.UpdatedAt,
 	}
 }
 
-func ToUserCFromRepo(user modelRepo.UserC) model.UserC {
-	return model.UserC{
-		UU:       ToUserUFromRepo(user.UU),
-		Password: user.Password,
+func ToUserCFromRepo(user modelRepo.UserCreate) model.UserCreate {
+	return model.UserCreate{
+		UserUpdate: ToUserUFromRepo(user.UserUpdate),
+		Password:   user.Password,
 	}
 }
 
-func ToUserUFromRepo(user modelRepo.UserU) model.UserU {
-	return model.UserU{
+func ToUserUFromRepo(user modelRepo.UserUpdate) model.UserUpdate {
+	return model.UserUpdate{
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,

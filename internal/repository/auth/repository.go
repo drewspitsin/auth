@@ -32,11 +32,11 @@ func NewRepository(dbClient db.Client) repository.AuthRepository {
 	return &repo{db: dbClient}
 }
 
-func (r *repo) Create(ctx context.Context, info *model.UserC) (int64, error) {
+func (r *repo) Create(ctx context.Context, info *model.UserCreate) (int64, error) {
 	builderInsert := sq.Insert(table).
 		PlaceholderFormat(sq.Dollar).
 		Columns(username, email, password, role).
-		Values(info.UU.Name, info.UU.Email, info.Password, info.UU.Role).
+		Values(info.UserUpdate.Name, info.UserUpdate.Email, info.Password, info.UserUpdate.Role).
 		Suffix("RETURNING id")
 
 	query, args, err := builderInsert.ToSql()
@@ -77,7 +77,7 @@ func (r *repo) Get(ctx context.Context, userID int64) (*model.User, error) {
 	}
 
 	var user modelRepo.User
-	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&user.UC.UU.ID, &user.UC.UU.Name, &user.UC.UU.Email, &user.UC.UU.Role, &user.CreatedAt, &user.UpdatedAt)
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&user.UserCreate.UserUpdate.ID, &user.UserCreate.UserUpdate.Name, &user.UserCreate.UserUpdate.Email, &user.UserCreate.UserUpdate.Role, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (r *repo) Get(ctx context.Context, userID int64) (*model.User, error) {
 	return converter.ToUserFromRepo(user), nil
 }
 
-func (r *repo) Update(ctx context.Context, info *model.UserU) error {
+func (r *repo) Update(ctx context.Context, info *model.UserUpdate) error {
 	builderUpdate := sq.Update(table).
 		PlaceholderFormat(sq.Dollar).
 		Set(username, info.Name).

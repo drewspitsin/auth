@@ -14,7 +14,7 @@ func (i *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.G
 		return nil, err
 	}
 
-	log.Printf("id: %d", authObj.UC.UU.ID)
+	log.Printf("id: %d", authObj.UserCreate.UserUpdate.ID)
 
 	return &desc.GetResponse{
 		Info: converter.ToUserFromService(authObj),

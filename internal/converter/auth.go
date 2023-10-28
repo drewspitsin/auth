@@ -15,21 +15,21 @@ func ToUserFromService(user *model.User) *desc.User {
 	}
 
 	return &desc.User{
-		Userc:     ToUserCFromService(&user.UC),
-		CreatedAt: timestamppb.New(user.CreatedAt),
-		UpdatedAt: updatedAt,
+		UserCreate: ToUserCreateFromService(&user.UserCreate),
+		CreatedAt:  timestamppb.New(user.CreatedAt),
+		UpdatedAt:  updatedAt,
 	}
 }
 
-func ToUserCFromService(user *model.UserC) *desc.UserC {
-	return &desc.UserC{
-		Useru:    ToUserUFromService(&user.UU),
-		Password: "",
+func ToUserCreateFromService(user *model.UserCreate) *desc.UserCreate {
+	return &desc.UserCreate{
+		UserUpdate: ToUserUpdateFromService(&user.UserUpdate),
+		Password:   user.Password,
 	}
 }
 
-func ToUserUFromService(user *model.UserU) *desc.UserU {
-	return &desc.UserU{
+func ToUserUpdateFromService(user *model.UserUpdate) *desc.UserUpdate {
+	return &desc.UserUpdate{
 		Id:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
@@ -38,28 +38,32 @@ func ToUserUFromService(user *model.UserU) *desc.UserU {
 }
 
 func ToUserFromDesc(user *desc.User) *model.User {
-	var UpdatedAt sql.NullTime
-	UpdatedAt.Valid = true
-	UpdatedAt.Time = user.UpdatedAt.AsTime()
-	UC := ToUserFromDescCreate(user.GetUserc())
+	var updatedAt sql.NullTime
+	if user.UpdatedAt.CheckValid() == nil {
+		updatedAt.Valid = true
+		updatedAt.Time = user.UpdatedAt.AsTime()
+	} else {
+		updatedAt.Valid = false
+	}
 
+	userCreate := ToUserFromDescCreate(user.GetUserCreate())
 	return &model.User{
-		UC:        *UC,
-		CreatedAt: user.CreatedAt.AsTime(),
-		UpdatedAt: UpdatedAt,
+		UserCreate: *userCreate,
+		CreatedAt:  user.CreatedAt.AsTime(),
+		UpdatedAt:  updatedAt,
 	}
 }
 
-func ToUserFromDescCreate(user *desc.UserC) *model.UserC {
-	UU := ToUserFromDescUpdate(user.GetUseru())
-	return &model.UserC{
-		UU:       *UU,
-		Password: user.Password,
+func ToUserFromDescCreate(user *desc.UserCreate) *model.UserCreate {
+	userUpdate := ToUserFromDescUpdate(user.GetUserUpdate())
+	return &model.UserCreate{
+		UserUpdate: *userUpdate,
+		Password:   user.Password,
 	}
 }
 
-func ToUserFromDescUpdate(user *desc.UserU) *model.UserU {
-	return &model.UserU{
+func ToUserFromDescUpdate(user *desc.UserUpdate) *model.UserUpdate {
+	return &model.UserUpdate{
 		ID:    user.Id,
 		Name:  user.Name,
 		Email: user.Email,
