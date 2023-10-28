@@ -32,7 +32,7 @@ func NewRepository(dbClient db.Client) repository.AuthRepository {
 	return &repo{db: dbClient}
 }
 
-func (s *repo) Create(ctx context.Context, info *model.UserC) (int64, error) {
+func (r *repo) Create(ctx context.Context, info *model.UserC) (int64, error) {
 	builderInsert := sq.Insert(table).
 		PlaceholderFormat(sq.Dollar).
 		Columns(username, email, password, role).
@@ -50,7 +50,7 @@ func (s *repo) Create(ctx context.Context, info *model.UserC) (int64, error) {
 	}
 
 	var userID int64
-	err = s.db.DB().QueryRowContext(ctx, q, args...).Scan(&userID)
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
@@ -58,8 +58,8 @@ func (s *repo) Create(ctx context.Context, info *model.UserC) (int64, error) {
 	return userID, nil
 }
 
-// Делаем запрос на получение измененной записи из таблицы user_table
-func (s *repo) Get(ctx context.Context, userID int64) (*model.User, error) {
+// Делаем запрос на получение измененной записи из таблицы users
+func (r *repo) Get(ctx context.Context, userID int64) (*model.User, error) {
 	builderSelectOne := sq.Select(id, username, email, role, createdAtPg, updatedAtPg).
 		From(table).
 		PlaceholderFormat(sq.Dollar).
@@ -77,7 +77,7 @@ func (s *repo) Get(ctx context.Context, userID int64) (*model.User, error) {
 	}
 
 	var user modelRepo.User
-	err = s.db.DB().QueryRowContext(ctx, q, args...).Scan(&user.UC.UU.ID, &user.UC.UU.Name, &user.UC.UU.Email, &user.UC.UU.Role, &user.CreatedAt, &user.UpdatedAt)
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&user.UC.UU.ID, &user.UC.UU.Name, &user.UC.UU.Email, &user.UC.UU.Role, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *repo) Get(ctx context.Context, userID int64) (*model.User, error) {
 	return converter.ToUserFromRepo(user), nil
 }
 
-func (s *repo) Update(ctx context.Context, info *model.UserU) error {
+func (r *repo) Update(ctx context.Context, info *model.UserU) error {
 	builderUpdate := sq.Update(table).
 		PlaceholderFormat(sq.Dollar).
 		Set(username, info.Name).
@@ -104,7 +104,7 @@ func (s *repo) Update(ctx context.Context, info *model.UserU) error {
 		QueryRaw: query,
 	}
 
-	res, err := s.db.DB().ExecContext(ctx, q, args...)
+	res, err := r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %v tag: %v", err, res)
 	}
@@ -112,9 +112,9 @@ func (s *repo) Update(ctx context.Context, info *model.UserU) error {
 	return nil
 }
 
-func (s *repo) Delete(ctx context.Context, id_d int64) error {
+func (r *repo) Delete(ctx context.Context, deleteID int64) error {
 	builderInsert := sq.Delete(table).
-		Where(sq.Eq{id: id_d}).
+		Where(sq.Eq{id: deleteID}).
 		PlaceholderFormat(sq.Dollar)
 	query, args, err := builderInsert.ToSql()
 	if err != nil {
@@ -125,7 +125,7 @@ func (s *repo) Delete(ctx context.Context, id_d int64) error {
 		Name:     "auth_repository.Delete",
 		QueryRaw: query,
 	}
-	res, err := s.db.DB().ExecContext(ctx, q, args...)
+	res, err := r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %v tag: %v", err, res)
 	}
