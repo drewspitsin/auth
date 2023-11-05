@@ -61,8 +61,6 @@ func TestCreate(t *testing.T) {
 			Password:   password,
 		}
 
-		res = id
-
 		txM TxMock
 
 		resGet = &model.User{
@@ -88,11 +86,11 @@ func TestCreate(t *testing.T) {
 				ctx: ctx,
 				req: req,
 			},
-			want: res,
+			want: id,
 			err:  nil,
 			authRepositoryMock: func(mc *minimock.Controller) repository.AuthRepository {
 				mock := repoMocks.NewAuthRepositoryMock(mc)
-				mock.CreateMock.Return(res, nil)
+				mock.CreateMock.Return(id, nil)
 				mock.GetMock.Return(resGet, nil)
 				return mock
 			},
