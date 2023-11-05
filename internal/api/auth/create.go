@@ -9,6 +9,11 @@ import (
 )
 
 func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	id, err := i.authService.Create(ctx, converter.ToUserFromDescCreate(req.GetInfo()))
 	if err != nil {
 		return nil, err

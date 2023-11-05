@@ -45,16 +45,26 @@ func TestGet(t *testing.T) {
 		}
 
 		serviceRes = &model.User{
-			UserCreate: model.UserCreate{UserUpdate: model.UserUpdate{ID: id, Name: name, Email: email, Role: 0}, Password: password},
-			CreatedAt:  createdAt,
-			UpdatedAt:  sql.NullTime{Time: updatedAt, Valid: true},
+			UserCreate: model.UserCreate{UserUpdate: model.UserUpdate{
+				ID:    id,
+				Name:  name,
+				Email: email,
+				Role:  0},
+				Password: password},
+			CreatedAt: createdAt,
+			UpdatedAt: sql.NullTime{Time: updatedAt, Valid: true},
 		}
 
 		res = &desc.GetResponse{
 			Info: &desc.User{
-				UserCreate: &desc.UserCreate{UserUpdate: &desc.UserUpdate{Id: id, Name: name, Email: email, Role: 0}, Password: password},
-				CreatedAt:  timestamppb.New(createdAt),
-				UpdatedAt:  timestamppb.New(updatedAt),
+				UserCreate: &desc.UserCreate{UserUpdate: &desc.UserUpdate{
+					Id:    id,
+					Name:  name,
+					Email: email,
+					Role:  0},
+					Password: password},
+				CreatedAt: timestamppb.New(createdAt),
+				UpdatedAt: timestamppb.New(updatedAt),
 			},
 		}
 	)

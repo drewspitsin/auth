@@ -36,8 +36,6 @@ func TestDelete(t *testing.T) {
 			Id: id,
 		}
 
-		// serviceRes = &model.User{}
-
 		res interface{}
 	)
 	defer t.Cleanup(mc.Finish)
