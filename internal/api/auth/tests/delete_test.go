@@ -36,7 +36,7 @@ func TestDelete(t *testing.T) {
 			Id: id,
 		}
 
-		res interface{}
+		res any
 	)
 	defer t.Cleanup(mc.Finish)
 

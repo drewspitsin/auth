@@ -9,6 +9,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gojuno/minimock/v3"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
 	"github.com/drewspitsin/auth/internal/client/db"
@@ -36,7 +37,6 @@ func TestCreate(t *testing.T) {
 	t.Parallel()
 	type authRepositoryMockFunc func(mc *minimock.Controller) repository.AuthRepository
 	type txTransactorMockFunc func(mc *minimock.Controller) db.Transactor
-	type txManagerMockFunc func(mc *minimock.Controller) db.TxManager
 
 	type args struct {
 		ctx context.Context
@@ -57,16 +57,29 @@ func TestCreate(t *testing.T) {
 		repoErr = fmt.Errorf("can't begin transaction: repo error")
 
 		req = &model.UserCreate{
-			UserUpdate: model.UserUpdate{ID: id, Name: name, Email: email, Role: 0},
-			Password:   password,
+			UserUpdate: model.UserUpdate{
+				ID:    id,
+				Name:  name,
+				Email: email,
+				Role:  0,
+			},
+			Password: password,
 		}
 
 		txM TxMock
 
 		resGet = &model.User{
-			UserCreate: model.UserCreate{UserUpdate: model.UserUpdate{ID: id, Name: name, Email: email, Role: 0}, Password: password},
-			CreatedAt:  createdAt,
-			UpdatedAt:  sql.NullTime{Time: updatedAt, Valid: true},
+			UserCreate: model.UserCreate{
+				UserUpdate: model.UserUpdate{
+					ID:    id,
+					Name:  name,
+					Email: email,
+					Role:  0,
+				},
+				Password: password,
+			},
+			CreatedAt: createdAt,
+			UpdatedAt: sql.NullTime{Time: updatedAt, Valid: true},
 		}
 	)
 	defer t.Cleanup(mc.Finish)
@@ -78,7 +91,6 @@ func TestCreate(t *testing.T) {
 		err                error
 		authRepositoryMock authRepositoryMockFunc
 		txTransactorMock   txTransactorMockFunc
-		txManagerMock      txManagerMockFunc
 	}{
 		{
 			name: "success case",
@@ -113,9 +125,9 @@ func TestCreate(t *testing.T) {
 				mock := repoMocks.NewAuthRepositoryMock(mc)
 				return mock
 			},
-			txManagerMock: func(mc *minimock.Controller) db.TxManager {
-				mock := txMocks.NewTxManagerMock(mc)
-				mock.ReadCommittedMock.Return(repoErr)
+			txTransactorMock: func(mc *minimock.Controller) db.Transactor {
+				mock := txMocks.NewTransactorMock(mc)
+				mock.BeginTxMock.Return(&txM, repoErr)
 				return mock
 			},
 		},
@@ -126,19 +138,15 @@ func TestCreate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
+			authRepoMock := tt.authRepositoryMock(mc)
+			txTransact := transaction.NewTransactionManager(tt.txTransactorMock(mc))
+			service := auth.NewService(authRepoMock, txTransact)
+			newID, err := service.Create(tt.args.ctx, tt.args.req)
 			if tt.name == "service error case" {
-				authRepoMock := tt.authRepositoryMock(mc)
-				tx := tt.txManagerMock(mc)
-				service := auth.NewService(authRepoMock, tx)
-				newID, err := service.Create(tt.args.ctx, tt.args.req)
-				require.Equal(t, tt.err, err)
-				require.Equal(t, tt.want, newID)
+				require.NotNil(t, err)
+				require.Equal(t, errors.Wrap(tt.err, "can't begin transaction").Error(), err.Error())
 			} else {
-				authRepoMock := tt.authRepositoryMock(mc)
-				txTransact := transaction.NewTransactionManager(tt.txTransactorMock(mc))
-				service := auth.NewService(authRepoMock, txTransact)
-				newID, err := service.Create(tt.args.ctx, tt.args.req)
-				require.Equal(t, tt.err, err)
+				require.Nil(t, err)
 				require.Equal(t, tt.want, newID)
 			}
 
