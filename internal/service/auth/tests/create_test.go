@@ -9,7 +9,6 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gojuno/minimock/v3"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
 	"github.com/drewspitsin/auth/internal/client/db"
@@ -54,14 +53,14 @@ func TestCreate(t *testing.T) {
 		createdAt = gofakeit.Date()
 		updatedAt = gofakeit.Date()
 
-		repoErr = fmt.Errorf("can't begin transaction: repo error")
+		repoErr = fmt.Errorf("repo error")
 
 		req = &model.UserCreate{
 			UserUpdate: model.UserUpdate{
 				ID:    id,
 				Name:  name,
 				Email: email,
-				Role:  0,
+				Role:  1,
 			},
 			Password: password,
 		}
@@ -142,14 +141,8 @@ func TestCreate(t *testing.T) {
 			txTransact := transaction.NewTransactionManager(tt.txTransactorMock(mc))
 			service := auth.NewService(authRepoMock, txTransact)
 			newID, err := service.Create(tt.args.ctx, tt.args.req)
-			if tt.name == "service error case" {
-				require.NotNil(t, err)
-				require.Equal(t, errors.Wrap(tt.err, "can't begin transaction").Error(), err.Error())
-			} else {
-				require.Nil(t, err)
-				require.Equal(t, tt.want, newID)
-			}
-
+			require.ErrorIs(t, err, tt.err)
+			require.Equal(t, tt.want, newID)
 		})
 	}
 }

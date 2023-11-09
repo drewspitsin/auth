@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/chrisyxlee/pgxpoolmock v1.1.4
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/georgysavva/scany v1.2.1
 	github.com/gojuno/minimock/v3 v3.1.3
@@ -21,7 +20,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -40,7 +38,6 @@ require (
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.24.0
-	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
