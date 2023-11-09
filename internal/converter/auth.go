@@ -42,8 +42,6 @@ func ToUserFromDesc(user *desc.User) *model.User {
 	if user.UpdatedAt.CheckValid() == nil {
 		updatedAt.Valid = true
 		updatedAt.Time = user.UpdatedAt.AsTime()
-	} else {
-		updatedAt.Valid = false
 	}
 
 	userCreate := ToUserFromDescCreate(user.GetUserCreate())

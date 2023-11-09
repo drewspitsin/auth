@@ -33,3 +33,16 @@ func NewMockService(deps ...interface{}) service.AuthService {
 
 	return &srv
 }
+
+func NewMockTxService(deps ...interface{}) *serv {
+	srv := serv{}
+
+	for _, v := range deps {
+		switch s := v.(type) {
+		case serv:
+			srv = s
+		}
+	}
+
+	return &srv
+}
