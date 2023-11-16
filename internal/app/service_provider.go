@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 
+	"github.com/drewspitsin/auth/internal/api/access"
 	"github.com/drewspitsin/auth/internal/api/auth"
+	"github.com/drewspitsin/auth/internal/api/login"
 	"github.com/drewspitsin/auth/internal/client/db"
 	"github.com/drewspitsin/auth/internal/client/db/pg"
 	"github.com/drewspitsin/auth/internal/client/db/transaction"
@@ -12,10 +14,32 @@ import (
 	"github.com/drewspitsin/auth/internal/config"
 	"github.com/drewspitsin/auth/internal/config/env"
 	"github.com/drewspitsin/auth/internal/repository"
+	accessRepository "github.com/drewspitsin/auth/internal/repository/access"
 	authRepository "github.com/drewspitsin/auth/internal/repository/auth"
+	loginRepository "github.com/drewspitsin/auth/internal/repository/login"
 	"github.com/drewspitsin/auth/internal/service"
+	accessService "github.com/drewspitsin/auth/internal/service/access"
 	authService "github.com/drewspitsin/auth/internal/service/auth"
+	loginService "github.com/drewspitsin/auth/internal/service/login"
 )
+
+// func main() {
+// 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
+// 	if err != nil {
+// 		log.Fatalf("failed to listen: %v", err)
+// 	}
+
+// 	s := grpc.NewServer()
+// 	reflection.Register(s)
+// 	descAuth.RegisterAuthV1Server(s, &serverAuth{})
+// 	descAccess.RegisterAccessV1Server(s, &serverAccess{})
+
+// 	log.Printf("server listening at %v", lis.Addr())
+
+// 	if err = s.Serve(lis); err != nil {
+// 		log.Fatalf("failed to serve: %v", err)
+// 	}
+// }
 
 type serviceProvider struct {
 	pgConfig      config.PGConfig
@@ -23,13 +47,19 @@ type serviceProvider struct {
 	httpConfig    config.HTTPConfig
 	swaggerConfig config.SwaggerConfig
 
-	dbClient       db.Client
-	txManager      db.TxManager
-	authRepository repository.AuthRepository
+	dbClient         db.Client
+	txManager        db.TxManager
+	authRepository   repository.AuthRepository
+	loginRepository  repository.LoginRepository
+	accessRepository repository.AccessRepository
 
-	authService service.AuthService
+	authService   service.AuthService
+	loginService  service.LoginService
+	accessService service.AccessService
 
-	authImpl *auth.Implementation
+	authImpl   *auth.Implementation
+	loginImpl  *login.Implementation
+	accessImpl *access.Implementation
 }
 
 func newServiceProvider() *serviceProvider {
@@ -140,4 +170,57 @@ func (s *serviceProvider) AuthImpl(ctx context.Context) *auth.Implementation {
 	}
 
 	return s.authImpl
+}
+
+func (s *serviceProvider) LoginRepository(ctx context.Context) repository.LoginRepository {
+	if s.loginRepository == nil {
+		s.loginRepository = loginRepository.NewRepository(s.DBClient(ctx))
+	}
+
+	return s.loginRepository
+}
+
+func (s *serviceProvider) LoginService(ctx context.Context) service.LoginService {
+	if s.loginService == nil {
+		s.loginService = loginService.NewService(
+			s.LoginRepository(ctx),
+			s.TxManager(ctx),
+		)
+	}
+
+	return s.loginService
+}
+
+func (s *serviceProvider) LoginImpl(ctx context.Context) *login.Implementation {
+	if s.LoginImpl == nil {
+		s.loginImpl = login.NewImplementation(s.LoginService(ctx))
+	}
+
+	return s.loginImpl
+}
+
+func (s *serviceProvider) AccessRepository(ctx context.Context) repository.AccessRepository {
+	if s.accessRepository == nil {
+		s.accessRepository = accessRepository.NewRepository(s.DBClient(ctx))
+	}
+
+	return s.accessRepository
+}
+
+func (s *serviceProvider) AccessService(ctx context.Context) service.AccessService {
+	if s.accessService == nil {
+		s.accessService = accessService.NewService(
+			s.AccessRepository(ctx),
+			s.TxManager(ctx),
+		)
+	}
+
+	return s.accessService
+}
+func (s *serviceProvider) AccessImpl(ctx context.Context) *access.Implementation {
+	if s.accessImpl == nil {
+		s.accessImpl = access.NewImplementation(s.AccessService(ctx))
+	}
+
+	return s.accessImpl
 }

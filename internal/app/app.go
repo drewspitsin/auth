@@ -17,6 +17,8 @@ import (
 	"github.com/drewspitsin/auth/internal/closer"
 	"github.com/drewspitsin/auth/internal/config"
 	"github.com/drewspitsin/auth/internal/interceptor"
+	descAccess "github.com/drewspitsin/auth/pkg/access_v1"
+	descAuth "github.com/drewspitsin/auth/pkg/auth_v1"
 	desc "github.com/drewspitsin/auth/pkg/user_api_v1"
 	_ "github.com/drewspitsin/auth/statik"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -123,6 +125,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	reflection.Register(a.grpcServer)
 
 	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.AuthImpl(ctx))
+	descAuth.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.LoginImpl(ctx))
+	descAccess.RegisterAccessV1Server(a.grpcServer, a.serviceProvider.AccessImpl(ctx))
 
 	return nil
 }
