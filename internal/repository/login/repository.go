@@ -25,3 +25,6 @@ func (r *repo) GetAccessToken(ctx context.Context, token string) (string, error)
 func (r *repo) GetRefreshToken(ctx context.Context, token string) (string, error) {
 	return "", nil
 }
+func (r *repo) GetUserRole(ctx context.Context) (string, error) {
+	return "admin", nil
+}

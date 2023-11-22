@@ -15,13 +15,14 @@ func (s *serverAuth) GetRefreshToken(ctx context.Context, token string) (string,
 	if err != nil {
 		return "", status.Errorf(codes.Aborted, "invalid refresh token")
 	}
-
-	// Можем слазать в базу или в кэш за доп данными пользователя
-
+	r, err := s.loginRepository.GetUserRole(ctx)
+	if err != nil {
+		return "", nil
+	}
 	refreshToken, err := utils.GenerateToken(model.UserInfo{
 		Username: claims.Username,
 		// Это пример, в реальности роль должна браться из базы или кэша
-		Role: "admin",
+		Role: r,
 	},
 		[]byte(refreshTokenSecretKey),
 		refreshTokenExpiration,

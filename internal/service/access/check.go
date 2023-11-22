@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/drewspitsin/auth/internal/model"
 	"github.com/drewspitsin/auth/internal/utils"
 	"google.golang.org/grpc/metadata"
 )
@@ -62,13 +61,11 @@ func (s *serverAccess) Check(ctx context.Context, endpointAddress string) error 
 // Возвращает мапу с адресом эндпоинта и ролью, которая имеет доступ к нему
 func (s *serverAccess) accessibleRoles(ctx context.Context) (map[string]string, error) {
 	if accessibleRoles == nil {
-		accessibleRoles = make(map[string]string)
-
-		// Лезем в базу за данными о доступных ролях для каждого эндпоинта
-		// Можно кэшировать данные, чтобы не лезть в базу каждый раз
-
-		// Например, для эндпоинта /note_v1.NoteV1/Get доступна только роль admin
-		accessibleRoles[model.ExamplePath] = "admin"
+		Roles, err := s.accessRepository.Roles(ctx)
+		if err != nil {
+			return nil, nil
+		}
+		accessibleRoles = Roles
 	}
 
 	return accessibleRoles, nil

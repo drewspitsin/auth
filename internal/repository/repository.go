@@ -14,11 +14,12 @@ type AuthRepository interface {
 }
 
 type AccessRepository interface {
-	Check(ctx context.Context, endpointAddress string) error
+	Roles(ctx context.Context) (map[string]string, error)
 }
 
 type LoginRepository interface {
 	Login(ctx context.Context, info *model.UserClaims) (string, error)
 	GetAccessToken(ctx context.Context, token string) (string, error)
 	GetRefreshToken(ctx context.Context, token string) (string, error)
+	GetUserRole(ctx context.Context) (string, error)
 }

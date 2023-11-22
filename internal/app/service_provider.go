@@ -192,7 +192,7 @@ func (s *serviceProvider) LoginService(ctx context.Context) service.LoginService
 }
 
 func (s *serviceProvider) LoginImpl(ctx context.Context) *login.Implementation {
-	if s.LoginImpl == nil {
+	if s.loginImpl == nil {
 		s.loginImpl = login.NewImplementation(s.LoginService(ctx))
 	}
 

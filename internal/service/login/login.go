@@ -19,12 +19,13 @@ const (
 )
 
 func (s *serverAuth) Login(ctx context.Context, info *model.UserClaims) (string, error) {
-	// Лезем в базу или кэш за данными пользователя
-	// Сверяем хэши пароля
+	r, err := s.loginRepository.GetUserRole(ctx)
+	if err != nil {
+		return "", nil
+	}
 	refreshToken, err := utils.GenerateToken(model.UserInfo{
 		Username: info.Username,
-		// Это пример, в реальности роль должна браться из базы или кэша
-		Role: "admin",
+		Role:     r,
 	},
 		[]byte(refreshTokenSecretKey),
 		refreshTokenExpiration,
