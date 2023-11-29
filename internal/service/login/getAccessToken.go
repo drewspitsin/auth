@@ -2,6 +2,7 @@ package login
 
 import (
 	"context"
+	"os"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,6 +12,8 @@ import (
 )
 
 func (s *serverAuth) GetAccessToken(ctx context.Context, token string) (string, error) {
+	accessTokenSecretKey := os.Getenv("accessTokenSecretKey")
+	refreshTokenSecretKey := os.Getenv("refreshTokenSecretKey")
 	claims, err := utils.VerifyToken(token, []byte(refreshTokenSecretKey))
 	if err != nil {
 		return "", status.Errorf(codes.Aborted, "invalid refresh token")

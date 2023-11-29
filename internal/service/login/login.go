@@ -2,6 +2,7 @@ package login
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -11,14 +12,12 @@ import (
 )
 
 const (
-	refreshTokenSecretKey = "W4/X+LLjehdxptt4YgGFCvMpq5ewptpZZYRHY6A72g0="
-	accessTokenSecretKey  = "VqvguGiffXILza1f44TWXowDT4zwf03dtXmqWW4SYyE="
-
 	refreshTokenExpiration = 60 * time.Minute
 	accessTokenExpiration  = 1 * time.Minute
 )
 
 func (s *serverAuth) Login(ctx context.Context, info *model.UserClaims) (string, error) {
+	refreshTokenSecretKey := os.Getenv("refreshTokenSecretKey")
 	r, err := s.loginRepository.GetUserRole(ctx)
 	if err != nil {
 		return "", nil

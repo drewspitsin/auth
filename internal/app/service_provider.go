@@ -23,24 +23,6 @@ import (
 	loginService "github.com/drewspitsin/auth/internal/service/login"
 )
 
-// func main() {
-// 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
-// 	if err != nil {
-// 		log.Fatalf("failed to listen: %v", err)
-// 	}
-
-// 	s := grpc.NewServer()
-// 	reflection.Register(s)
-// 	descAuth.RegisterAuthV1Server(s, &serverAuth{})
-// 	descAccess.RegisterAccessV1Server(s, &serverAccess{})
-
-// 	log.Printf("server listening at %v", lis.Addr())
-
-// 	if err = s.Serve(lis); err != nil {
-// 		log.Fatalf("failed to serve: %v", err)
-// 	}
-// }
-
 type serviceProvider struct {
 	pgConfig      config.PGConfig
 	grpcConfig    config.GRPCConfig

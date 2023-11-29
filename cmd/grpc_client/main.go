@@ -16,13 +16,17 @@ import (
 
 var accessToken = flag.String("a", "", "access token")
 
-const servicePort = 50051
+const (
+	servicePort = 50051
+	authPrefix  = "Bearer"
+	authHeader  = "Authorization"
+)
 
 func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	md := metadata.New(map[string]string{"Authorization": "Bearer " + *accessToken})
+	md := metadata.New(map[string]string{authHeader: authPrefix + " " + *accessToken})
 	ctx = metadata.NewOutgoingContext(ctx, md)
 
 	conn, err := grpc.Dial(

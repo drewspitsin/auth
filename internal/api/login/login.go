@@ -8,12 +8,12 @@ import (
 )
 
 func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*desc.LoginResponse, error) {
-	Obj, err := i.loginService.Login(ctx, converter.ToUserClaimsFromLogin(req.GetInfo()))
+	obj, err := i.loginService.Login(ctx, converter.ToUserClaimsFromLogin(req.GetInfo()))
 	if err != nil {
 		return nil, err
 	}
 
 	return &desc.LoginResponse{
-		RefreshToken: Obj,
+		RefreshToken: obj,
 	}, nil
 }

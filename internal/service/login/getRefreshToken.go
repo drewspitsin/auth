@@ -2,6 +2,7 @@ package login
 
 import (
 	"context"
+	"os"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,6 +12,7 @@ import (
 )
 
 func (s *serverAuth) GetRefreshToken(ctx context.Context, token string) (string, error) {
+	refreshTokenSecretKey := os.Getenv("refreshTokenSecretKey")
 	claims, err := utils.VerifyToken(token, []byte(refreshTokenSecretKey))
 	if err != nil {
 		return "", status.Errorf(codes.Aborted, "invalid refresh token")
@@ -21,8 +23,7 @@ func (s *serverAuth) GetRefreshToken(ctx context.Context, token string) (string,
 	}
 	refreshToken, err := utils.GenerateToken(model.UserInfo{
 		Username: claims.Username,
-		// Это пример, в реальности роль должна браться из базы или кэша
-		Role: r,
+		Role:     r,
 	},
 		[]byte(refreshTokenSecretKey),
 		refreshTokenExpiration,
