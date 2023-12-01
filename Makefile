@@ -22,6 +22,7 @@ get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/gojuno/minimock/v3/cmd/minimock@v3.1.3
+	go get -u github.com/envoyproxy/protoc-gen-validate
 
 generate:
 	mkdir -p pkg/swagger
@@ -123,3 +124,26 @@ vendor-proto:
 			mv vendor.protogen/openapiv2/protoc-gen-openapiv2/options/*.proto vendor.protogen/protoc-gen-openapiv2/options &&\
 			rm -rf vendor.protogen/openapiv2 ;\
 		fi
+
+
+grpc-load-test:
+	$(LOCAL_BIN)/ghz \
+		--proto api/user_api/user_api_v1.proto \
+		--import-paths=./vendor.protogen/ \
+		--call user_api_v1.UserV1.Get \
+		--data '{"id": 1}' \
+		--rps 100 \
+		--total 3000 \
+		--insecure \
+		localhost:50051
+
+grpc-error-load-test:
+	$(LOCAL_BIN)/ghz \
+		--proto api/user_api/user_api_v1.proto \
+		--import-paths=./vendor.protogen/ \
+		--call user_api_v1.UserV1.Get \
+		--data '{"id": 0}' \
+		--rps 100 \
+		--total 3000 \
+		--insecure \
+		localhost:50051
