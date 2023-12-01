@@ -12,3 +12,14 @@ type AuthRepository interface {
 	Update(ctx context.Context, info *model.UserUpdate) error
 	Delete(ctx context.Context, id int64) error
 }
+
+type AccessRepository interface {
+	Roles(ctx context.Context) (map[string]string, error)
+}
+
+type LoginRepository interface {
+	Login(ctx context.Context, info *model.UserClaims) (string, error)
+	GetAccessToken(ctx context.Context, token string) (string, error)
+	GetRefreshToken(ctx context.Context, token string) (string, error)
+	GetUserRole(ctx context.Context) (string, error)
+}
