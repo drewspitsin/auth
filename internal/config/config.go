@@ -28,3 +28,7 @@ type HTTPConfig interface {
 type SwaggerConfig interface {
 	Address() string
 }
+
+type PrometheusConfig interface {
+	Address() string
+}
