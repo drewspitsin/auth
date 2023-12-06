@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -45,6 +46,7 @@ type App struct {
 
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{}
+	flag.Parse()
 
 	err := a.initDeps(ctx)
 	if err != nil {
@@ -139,11 +141,10 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
-	flag.Parse()
 	logger.Init(getCore(getAtomicLevel()))
 	err := metric.Init(ctx)
 	if err != nil {
-		log.Fatalf("failed to init metrics: %v", err)
+		return fmt.Errorf("failed to init metrics: %v", err)
 	}
 
 	a.grpcServer = grpc.NewServer(
